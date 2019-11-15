@@ -3,7 +3,7 @@
 
    Author: Mavrick Henderson, Zachay Hickey
    C.S.1428.002
-   Lab Section: L17, L17
+   Lab Section: L17 &L17
    Program: #5
    Due Date: 12/02/19
 
@@ -152,18 +152,35 @@ const double CUT_OFF = 40.00,      // work week
              HI_TAX_RATE = 0.31;
 
 // REPLACE THIS COMMENT WITH PROTOTYPES.
+void printIdInfo( ostream &, const string, const int, const string, const string);
+
+void printReportHeadings ( ostream & );
+
+void dataIn ( ifstream &, int [], double [][COLS] );
+
+void overTime ( double [][COLS] );
+
+void grossPay ( double [][COLS] );
+
+void stateTax ( double [][COLS] );
+
+void federalTax ( double [][COLS] );
+
+void netPay ( double [] [COLS]) ;
+
+void printReportData ( ostream &, const int[], const double[][COLS] );
 
 int main ( )
 {
-   const string AUTHORS = "...",       // REMOVE THIS COMMENT AFTER REPLACING ... WITH THE NAMES OF YOUR TEAM MEMBERS.
-                LAB_SECTION = "L?",    // REMOVE THIS COMMENT AFTER REPLACING THE QUESTION MARK WITH A TWO-DIGIT LAB LECTURE_SECTION NUMBER.
-                DUE_DATE = "--/--/--"; // REMOVE THIS COMMENT AFTER REPLACING --/--/-- WITH THE DUE DATE IN THIS FORMAT.
+   const string AUTHORS = "Mavrick Henderson, Zachary Hickey",
+                LAB_SECTION = "L17 & L17",
+                DUE_DATE = "12/02/19";
 
-   const int LECTURE_SECTION = ?,      // REMOVE THIS COMMENT AFTER REPLACING THE QUESTION MARK WITH A ONE-DIGIT LECTURE_SECTION NUMBER.
+   const int LECTURE_SECTION = 2,
              MAX_LENGTH_FN = 20;
 
-   char input_filename[MAX_LENGTH_FN + 1] = "...",  // REMOVE THIS COMMENT AFTER REPLACING ... WITH THE NAME OF THE INPUT FILE.
-        output_filename[MAX_LENGTH_FN + 1] = "..."; // REMOVE THIS COMMENT AFTER REPLACING ... WITH THE NAME OF THE OUTPUT FILE.
+   char input_filename[MAX_LENGTH_FN + 1] = "test2.txt",  // REMOVE THIS COMMENT AFTER REPLACING ... WITH THE NAME OF THE INPUT FILE.
+        output_filename[MAX_LENGTH_FN + 1] = "test.txt"; // REMOVE THIS COMMENT AFTER REPLACING ... WITH THE NAME OF THE OUTPUT FILE.
 
    int employee[ROWS];          // employee ID#s
 
@@ -192,14 +209,141 @@ int main ( )
    federalTax ( payroll );
    netPay ( payroll );
    printReportData ( fout, employee, payroll );
-   printIdInfo( cout, AUTHORS, LECTURE_SECTION, LAB_SECTION, DUE_DATE );
+   printIdInfo( cout, AUTHORS, LECTURE_SECTION, LAB_SECTION, DUE_DATE );/*
    writeFileLocation ( output_filename );
 
    // REPLACE THIS COMMENT WITH CODE TO CLOSE THE INPUT/OUTPUT FILES.
 
-   system("PAUSE>NUL");
+   system("PAUSE>NUL");*/
+
 
    return 0;
 }
 
 // REPLACE THIS COMMENT WITH DOCUMENTATION & CODE FOR THE FUNCTION DEFINITIONS.
+
+/*
+put stuff dont forget!!!!!!!!!
+!!!!!!!!!!!!
+!!!!!
+*/
+
+void printIdInfo ( ostream & out, const string AUTHORS, const int LECTURE_SECTION, const string LAB_SECTION, const string DUE_DATE )
+{
+out << AUTHORS << endl
+    << "C.S.1428." << setw(3) << setfill('0') << LECTURE_SECTION << endl
+    << "Lab Section: " << LAB_SECTION << endl
+    << DUE_DATE << endl << endl << endl;
+}
+
+/*
+add shit dont forget
+
+
+
+*/
+
+void printReportHeadings ( ostream & out )
+{
+out << "                     Monthly Payroll Report" << endl << endl
+    << " ID#     Hours    Hourly   Overtime    Gross     State    Federal     Net" << endl
+    << "        Worked     Rate      Hours      Pay       Tax       Tax       Pay" << endl;
+}
+
+/*
+add shit or she will be mad!!!!!!
+
+
+*/
+
+void dataIn ( ifstream & fin, int employee[], double payroll[][COLS])
+{
+
+for ( int row = 0; row < ROWS; row++ )
+    fin >> employee[row] >> payroll[row][HRS_WRKD] >> payroll[row][PAYRATE];
+}
+
+/*
+add shit again
+
+*/
+
+void overTime ( double payroll[][COLS] )
+{
+for ( int row = 0; row < ROWS; row++ )
+  {
+    if ( payroll[row][HRS_WRKD] > CUT_OFF )
+      payroll[row][OVRTIME] = payroll[row][HRS_WRKD] - CUT_OFF;
+    else
+      payroll[row][OVRTIME] = 0;
+  }
+
+}
+
+/*
+add more shit
+
+*/
+
+void grossPay ( double payroll[][COLS] )
+{
+for ( int row = 0; row < ROWS; row++ )
+  if ( payroll[row][OVRTIME] > 0)
+  {
+    payroll[row][GROSS] = payroll[row][OVRTIME] * payroll[row][PAYRATE] * 1.5;
+    payroll[row][GROSS]+= CUT_OFF * payroll[row][PAYRATE];
+  }
+  else
+    payroll[row][GROSS] = payroll[row][HRS_WRKD] * payroll[row][PAYRATE];
+}
+
+/*
+put shit here
+*/
+
+void stateTax ( double payroll[][COLS] )
+{
+for ( int row = 0; row < ROWS; row++ )
+  payroll[row][ST_TAX] = payroll[row][GROSS] * STATE_TX_RATE;
+}
+
+/*
+add stuff
+
+
+
+*/
+void federalTax ( double payroll[][COLS] )
+{
+for ( int row = 0; row < ROWS; row++ )
+  if ( payroll[row][GROSS] <= TAX_CUT_OFF )
+    payroll[row][FED_TAX] = payroll[row][GROSS] * LOW_TAX_RATE;
+  else
+  {
+    payroll[row][FED_TAX] = TAX_CUT_OFF * LOW_TAX_RATE;
+    payroll[row][FED_TAX] += ( payroll[row][GROSS] - TAX_CUT_OFF ) * HI_TAX_RATE;
+  }
+}
+
+/*
+stuff
+*/
+void netPay ( double payroll[][COLS] )
+{
+for ( int row = 0; row < ROWS; row++ )
+  payroll[row][NETPAY] = payroll[row][GROSS] - payroll[row][ST_TAX] - payroll[row][FED_TAX];
+}
+/*
+add stfff
+
+*/
+void printReportData ( ostream& out, const int employee[], const double payroll[][COLS])
+{
+  for ( int row = 0; row < ROWS; row++ )
+  {
+    out << employee[row];
+    for ( int info = 0; info < COLS; info++ )
+      out << fixed << setprecision(2) << setfill(' ') << setw(10) << payroll[row][info];
+    out << endl;
+  }
+}
