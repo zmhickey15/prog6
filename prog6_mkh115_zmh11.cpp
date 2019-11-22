@@ -220,12 +220,31 @@ int main ( )
    return 0;
 }
 
-// REPLACE THIS COMMENT WITH DOCUMENTATION & CODE FOR THE FUNCTION DEFINITIONS.
-
 /*
-put stuff dont forget!!!!!!!!!
-!!!!!!!!!!!!
-!!!!!
+    Function: printIdInfo
+
+    The function, printIdInfo, writes the team members' identifying 
+    information to the output file on four separate lines 
+        - AUTHORS
+        - C.S.1428. Lecture section
+        - Lab Section: LAB_SECTION
+        - DUE_DATE 
+    one blank line is left after DUE_DATE.
+
+    Sample Output:
+      Authors' Names
+      C.S.1428.?             // '?' represents three-digit lecture section #
+      Lab Section: L? & L?   // '?' represents two-digit lab section #s
+      --/--/--               // dashes represent due date, month/day/year
+            <blank line>
+    
+    Recives: output file variable 
+             AUTHORS (string constant) 
+             LECTURE_SECTION (int constant)
+             LAB_SECTION (string constant)
+             DUE_DATE (string constant)
+    Constants: AUTHORS, LECTURE_SECTION, LAB_SECTION, DUE_DATE
+    Returns: nothing; prints user's team identifying info to a file  
 */
 
 void printIdInfo ( ostream & out, const string AUTHORS, const int LECTURE_SECTION, const string LAB_SECTION, const string DUE_DATE )
@@ -237,10 +256,19 @@ out << AUTHORS << endl
 }
 
 /*
-add shit dont forget
+    Function: printReportHeadings
 
+    The function, printReportHeadings writes the headings for 
+    the output file
+   
+    Sample Output:
+                         Monthly Payroll Report
+    ID#     Hours    Hourly   Overtime    Gross     State    Federal     Net
+           Worked     Rate      Hours      Pay       Tax       Tax       Pay
 
-
+    Recives: output file variable
+    Constants: none
+    Returns: nothing; prints headings to file 
 */
 
 void printReportHeadings ( ostream & out )
@@ -251,6 +279,7 @@ out << "                     Monthly Payroll Report" << endl << endl
 }
 
 /*
+
 add shit or she will be mad!!!!!!
 
 
