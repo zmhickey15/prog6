@@ -1,129 +1,161 @@
 /*
-   File: prog5_mkh115_zmh11.cpp
+   File: prog6_mkh115_zmh11.cpp
 
-   Author: Mavrick Henderson, Zachay Hickey
+   Author: Mavrick Henderson, Zachary Hickey
    C.S.1428.002
-   Lab Section: L17 &L17
-   Program: #5
+   Lab Section: L17, L17
+   Program: #6
    Due Date: 12/02/19
 
-   This program reads an unknown number of simple binary expressions
-   of the form 'operand1 operator operand2' from an input file. Each
-   expression is evaluated. Real input values are allowed.
+   This program prints to an output file a title and column headers for a
+   payroll report. It then reads an employees work record from an input file.
+   The number of overtime hours worked, gross pay, state tax, federal tax,
+   and net pay are calculated for each employee. The authors' personal
+   identification information followed by the company payroll report is
+   printed to the output file. Monetary values are displayed to two decimal
+   places.
 
-   A sentinel value read loop is used to process as described below:
+   An attempt to avoid repetitive code is made.
 
-   (Named constants to 'hold' CLASS ("C.S.1428") and DUE_DATE ("--/--/--")
-   are declared in the calling routine (main).)
+   An appropriate message is displayed to the console screen if either the
+   input or the output file fails to open.
 
-   - A void function, getName, is called to 'get' the team members' first & last
-     names using two different prompts for each team member leaving a blank
-     line between sets of prompts. Four strings, one to 'hold' the first name
-     and one to 'hold' the last name for each team member, are declared in the
-     calling routine. A blank line is left after the last prompt.
-   - A typed function, getLectureSection, is called to 'get' the team members'
-     three-digit lecture section number. A string to 'hold' the lecture
-     section number is declared in the calling routine. A blank line is left
-     after the prompt.
-   - A void function, getLabSection, is called to 'get' the team members'
-     two-digit lab section numbers using two separate prompts. Strings are
-     declared in the calling routine to 'hold' the lab section numbers.
-   - A void function, printIdInfo, is called to print the team members' personal
-     identifying information to the output file. (Refer to the sample output
-     below.)
-   - A void function, readExpression, is called to read from an input file
-     a binary expression in the form operand1 operator operand2. One read
-     statement is used to "get" the parts of the expression.
-   - While the operator in the expression read is not a question mark,
-     the program processes as follows:
-             - A void function, echoExpression, is called to echo (print)
-               the expression to the output file.
-             - A void function, evaluateExpression, is called. If the
-               expression currently being evaluated is valid, the results
-               are calculated and written to the output file; otherwise,
-               an appropriate message is written to the output file. (See
-               below. *) A switch is used in the solution.
-             - The void function readExpression is called to read the next
-               expression of the form operand1 operator operand2.
-   - Two blank lines are written to the screen in the calling routine before
-     the void function printIdInfo is called to print the team members' personal
-     identifying information to the console. (Refer to the sample output
-     below.)
-   - A void function, writeFileLocation, is called to print an appropriate
-     message to the screen indicating to the user the name of the output
-     file to which the results have been written. (Refer to sample output
-     below.)
+   An appropriate message is written to the console screen informing the
+   user of the output file name to which the results have been written.
+
+   The client file (main) calls the following void functions to process
+   the data:
+
+	  - printIdInfo prints the authors' personal information - name(s),
+        class/section number, lab section number(s), due date - on the first,
+        second, third and fourth lines. Two blank lines are left after the
+        due date. The lecture section number is displayed in a three-digit
+        field with leading zeros shown. The lab section number is displayed
+        in a two-digit field with leading zeros shown. The calling routine
+        determines the output stream to which the information is directed.
+        (Refer to sample output below.)
+	  - printReportHeadings prints to the output file the title & column
+        headings for the payroll report. One blank line is left after the
+        centered report title. Column headers are displayed on two lines.
+        (Refer to sample output below.)
+      - dataIn reads the employee ID#, hours worked and pay rate from
+        an input file storing the values read into parallel arrays. The
+        employee ID# is stored in a 1D array of integers. The hours worked
+        and the pay rate are stored in the first and second columns of a
+        2D array of reals.
+	  - overTime calculates the number of overtime hours worked by the
+        employee based on a 40 hour work week.
+	  - grossPay calculates the employee's gross pay for the week. If the
+        employee worked 40 hours or less, gross pay is the hourly pay rate
+        multiplied by the number of hours worked; otherwise, the employee
+        worked more than 40 hours, and they are paid the regular hourly
+        rate for the first 40 hours plus time and a half for any hours
+        over 40.
+	  - stateTax calculates state taxes owed by the employee, which is
+        calculated at a straight 6% of the employee's weekly gross pay.
+        (6% is a sample tax rate. The tax rate will vary with each state.)
+	  - federalTax calculates federal taxes owed by the employee. If
+        weekly gross pay is $400.00 or less, the tax rate is 20%; otherwise,
+        the employee's weekly gross pay is more than $400.00, and the tax
+        rate is calculated at 20% for the first $400.00 and 31% for any
+        amount over $400.00.
+        (These rates will vary based on current federal tax regulations.)
+	  - netPay calculates the employee's net pay for the week.
+        (gross pay minus calculated taxes both state & federal).
+	  - printReportData prints to the output file the information for each
+        employee in tabular form. Monetary values are displayed to two
+        digits of precision. (Refer to sample output below.)
+	  - writeFileLocation prints an appropriate message to the console
+        screen indicating to the user the name of the output file to which
+        the results have been written. The output file name is provided by
+        the calling routine.(Refer to sample output below.)
+
+
+   The following named constants are declared globally:
+      - the number of hours in a normal work week (40.00)
+      - the state tax rate (0.06)
+      - the federal tax rates (0.20; 0.31)
+      - the cut off at which federal taxes increase (400.00)
+      - parallel array dimensions
+      - names used to reference individual columns in the payroll array
+
+   Locally declared named constants include:
+      - a string to hold the authors' names
+      - a string to hold the authors' lab section number(s)
+      - a string to hold the project's due date
+      - an integer to hold the lecture section number
+      - an integer representing the maximum string length allowed for
+        input and output file names which are stored in character arrays
+        of that length
 
 ==========================================================================
 
-*The expressions are checked for the addition (+), subtraction (-),
-multiplication (*), and division (/) operators. Included are a check for
-division by zero when the division operator is encountered and a check for
-an invalid operator (e.g. 134.6 ! 23.1). Since these are mutually exclusive
-events, a switch statement with a nested double-sided alternative for
-handling the division operator was used to evaluate the expressions.
+Layout and content of the output are shown in the samples below.
 
-If division by zero is encountered, the original expression is echoed to
-the output file along with the message '   Division by zero produces an
-undefined result.' If an invalid operator is encountered, the original
-expression is echoed to the output file along with the message
-'   Encountered unknown operator.'
+Input (file - prog6_?inp.txt) // '?' represents three-digit lecture section #
+       one record per employee / each record containing three numbers
 
-Every attempt is made to eliminate repetitive code!
+       ID#(integer)  hours worked (real)  pay rate (real)
+       ...
 
-Numeric values in output are NOT formatted!
+Constants: globally declared:
+              integer: ROWS
+                       COLS
+                       {2D array column indices)
+                           HRS_WRKD = 0,
+                           PAYRATE = 1,
+                           OVRTIME = 2,
+                           GROSS = 3,
+                           ST_TAX = 4,
+                           FED_TAX = 5,
+                           NETPAY = 6;
 
-==========================================================================
+              double: CUT_OFF (hours in a work week)
+                      STATE_TX_RATE
+                      TAX_CUT_OFF (division @ which net pay is taxed higher)
+	                  LOW_TAX_RATE
+                      HI_TAX_RATE
 
-The layout and content of the file input and the file output are shown in
-the samples below. An appropriate message is displayed to the screen if
-either the input file or the output file fails to open.
+Constants: locally declared:
+              string:  AUTHORS
+                       LAB_SECTION
+                       DUE_DATE
 
-Input (file - prog5_?inp.txt):  // '?' represents three-digit lecture number
-(contains an unknown number of binary expressions)
+              integer: LECTURE_SECTION
+                       MAX_LENGTH_FN = ?  // filename's maximum length
 
-      operand1(double)  operator(char)  operand2(double)
-      ...
+Output (console):
+    Sample Console Output
 
-Constants: CLASS = "C.S.1428"    (string)
-           DUE_DATE = "--/--/--" (string)
+    Authors' Names
+    C.S.1428.?        // '?' represents three-digit lecture section number
+    Lab Section: L?   // '?' represents two-digit lab section numbet
+    --/--/--          // dashes represent due date, month/day/year
+         <blank line>
+         <blank line>
+    Program results have been written to prog6_?out.txt.
 
-Sample Screen Display:
+Output (file: prog6_?out.txt): // '?' represents three-digit lecture section #
+    Sample File Output
 
-     Enter your first name:
-     Enter your last name:
-           <blank line>
-     Enter your team member's first name:
-     Enter your team member's last name:
-           <blank line>
-     Enter your three-digit lecture section number:
-           <blank line>
-     Enter your two-digit lab section number:
-     Enter your team member's two-digit lab section number:
-           <blank line>
-           <blank line>
-     Authors' Names
-     C.S.1428.?           // '?' represents three-digit lecture section number
-     Lab Section: L? & L? // '?' represents two-digit lab section number
-     --/--/--             // dashes represent due date, month/day/year
-           <blank line>
-     <Appropriate message indicating the name of the output file.>
+    Authors' Names
+    C.S.1428.?        // '?' represents three-digit lecture section number
+    Lab Section: L?   // '?' represents two-digit lab section numbet
+    --/--/--          // dashes represent due date, month/day/year
+         <blank line>
+         <blank line>
+                         Monthly Payroll Report
+         <blank line>
+     ID#     Hours    Hourly    Overtime   Gross    State   Federal    Net
+            Worked     Rate       Hours     Pay      Tax      Tax      Pay
+    1000     51.00      6.55      11.00   370.07    22.20    74.02   273.86
+    ...
+    1002     26.00     15.00       0.00   390.00    23.40    78.00   288.60
+    ...
 
-Sample File Output (prog5_?out.txt): //'?' represents three-digit lecture sec #
+    =======================================================================
 
-     Authors' Names
-     C.S.1428.?             // '?' represents three-digit lecture section number
-     Lab Section: L? & L?   // '?' represents two-digit lab section number
-     --/--/--               // dashes represent due date, month/day/year
-           <blank line>
-     125 $ 28   Encountered unknown operator.
-     123.5 + 59.3 = 182.8
-     198.7 / 0   Division by zero produces an undefined result.
-     ...
-
-     ================================================
-
-     <Output will vary based on actual input values.>
+    <Output will vary based on actual input values.>
 */
 
 #include <iostream>
@@ -151,8 +183,9 @@ const double CUT_OFF = 40.00,      // work week
              LOW_TAX_RATE = 0.20,
              HI_TAX_RATE = 0.31;
 
-// REPLACE THIS COMMENT WITH PROTOTYPES.
-void printIdInfo( ostream &, const string, const int, const string, const string);
+
+void printIdInfo( ostream &, const string, const int, const string,
+                  const string );
 
 void printReportHeadings ( ostream & );
 
@@ -166,9 +199,11 @@ void stateTax ( double [][COLS] );
 
 void federalTax ( double [][COLS] );
 
-void netPay ( double [] [COLS]) ;
+void netPay ( double [] [COLS] ) ;
 
 void printReportData ( ostream &, const int[], const double[][COLS] );
+
+void writeFileLocation( const char [] );
 
 int main ( )
 {
@@ -179,8 +214,8 @@ int main ( )
    const int LECTURE_SECTION = 2,
              MAX_LENGTH_FN = 20;
 
-   char input_filename[MAX_LENGTH_FN + 1] = "test2.txt",  // REMOVE THIS COMMENT AFTER REPLACING ... WITH THE NAME OF THE INPUT FILE.
-        output_filename[MAX_LENGTH_FN + 1] = "test.txt"; // REMOVE THIS COMMENT AFTER REPLACING ... WITH THE NAME OF THE OUTPUT FILE.
+   char input_filename[MAX_LENGTH_FN + 1] = "prog6_002inp.txt",
+        output_filename[MAX_LENGTH_FN + 1] = "prog6_002out.txt";
 
    int employee[ROWS];          // employee ID#s
 
@@ -189,16 +224,33 @@ int main ( )
    ifstream fin;
    fin.open( input_filename );
 
-    // REPLACE THIS COMMENT WITH CODE TO VERIFY THE INPUT FILE OPENS.
-    // USE THE CODE FROM THE EXAMPLE PROVIDED ON THE ASSIGNMENTS PAGE.
-    // ONLY MAKE NECESSARY ADJUSTMENTS, OR POINTS WILL BE DEDUCTED.
+    if ( !fin )
+   {
+        cout << endl << endl
+             << "***Program Terminated.***" << endl << endl
+             << "Input file failed to open." << endl;
+
+        system("PAUSE>NUL");
+
+        return 1;
+    }
 
     ofstream fout;
     fout.open ( output_filename );
 
-    // REPLACE THIS COMMENT WITH CODE TO VERIFY THE INPUT FILE OPENS.
-    // USE THE CODE FROM THE EXAMPLE PROVIDED ON THE ASSIGNMENTS PAGE.
-    // ONLY MAKE NECESSARY ADJUSTMENTS, OR POINTS WILL BE DEDUCTED.
+     if ( !fout )
+   {
+        cout << endl << endl
+             << " ***Program Terminated.*** " << endl << endl
+             << "Output file failed to open." << endl;
+
+        fin.close( );
+
+        system("PAUSE>NUL");
+
+        return 2;
+   }
+
 
    printIdInfo( fout, AUTHORS, LECTURE_SECTION, LAB_SECTION, DUE_DATE );
    printReportHeadings ( fout );
@@ -209,12 +261,13 @@ int main ( )
    federalTax ( payroll );
    netPay ( payroll );
    printReportData ( fout, employee, payroll );
-   printIdInfo( cout, AUTHORS, LECTURE_SECTION, LAB_SECTION, DUE_DATE );/*
+   printIdInfo( cout, AUTHORS, LECTURE_SECTION, LAB_SECTION, DUE_DATE );
    writeFileLocation ( output_filename );
 
-   // REPLACE THIS COMMENT WITH CODE TO CLOSE THE INPUT/OUTPUT FILES.
+   fin.close( );
+   fout.close( );
 
-   system("PAUSE>NUL");*/
+   system("PAUSE>NUL");
 
 
    return 0;
@@ -222,157 +275,352 @@ int main ( )
 
 /*
     Function: printIdInfo
+    Author(s): Mavrick Henderson, Zachary Hickey
+    C.S.1428.002
+    Lab Section: L17, L17
+    Program 6 Function printIdInfo
+    12/02/19
 
-    The function, printIdInfo, writes the team members' identifying 
-    information to the output file on four separate lines 
+    The void function, printIdInfo, writes the team members' identifying
+    information to the output file on four separate lines
         - AUTHORS
         - C.S.1428. Lecture section
         - Lab Section: LAB_SECTION
-        - DUE_DATE 
+        - DUE_DATE
     one blank line is left after DUE_DATE.
 
-    Sample Output:
-      Authors' Names
-      C.S.1428.?             // '?' represents three-digit lecture section #
-      Lab Section: L? & L?   // '?' represents two-digit lab section #s
-      --/--/--               // dashes represent due date, month/day/year
-            <blank line>
-    
-    Recives: output file variable 
-             AUTHORS (string constant) 
-             LECTURE_SECTION (int constant)
-             LAB_SECTION (string constant)
-             DUE_DATE (string constant)
+        Sample Output:
+        Authors' Names
+        C.S.1428.?             // '?' represents three-digit lecture section #
+        Lab Section: L? & L?   // '?' represents two-digit lab section #s
+          --/--/--               // dashes represent due date, month/day/year
+              <blank line>
+
+    Recives: output file variable
+               AUTHORS (string constant)
+               LECTURE_SECTION (int constant)
+               LAB_SECTION (string constant)
+               DUE_DATE (string constant)
     Constants: AUTHORS, LECTURE_SECTION, LAB_SECTION, DUE_DATE
-    Returns: nothing; prints user's team identifying info to a file  
+    Returns: nothing; prints user's team identifying info to a file
 */
 
-void printIdInfo ( ostream & out, const string AUTHORS, const int LECTURE_SECTION, const string LAB_SECTION, const string DUE_DATE )
+void printIdInfo ( ostream & out, const string AUTHORS,
+                  const int LECTURE_SECTION, const string LAB_SECTION,
+                  const string DUE_DATE )
 {
-out << AUTHORS << endl
-    << "C.S.1428." << setw(3) << setfill('0') << LECTURE_SECTION << endl
-    << "Lab Section: " << LAB_SECTION << endl
-    << DUE_DATE << endl << endl << endl;
+    out << AUTHORS << endl
+        << "C.S.1428." << setw(3) << setfill('0') << LECTURE_SECTION << endl
+        << "Lab Section: " << LAB_SECTION << endl
+        << DUE_DATE << endl << endl << endl;
 }
 
 /*
     Function: printReportHeadings
+    Author(s): Mavrick Henderson, Zachary Hickey
+    C.S.1428.002
+    Lab Section: L17, L17
+    Program 6 Function printReportHeadings
+    12/02/19
 
-    The function, printReportHeadings writes the headings for 
-    the output file
-   
-    Sample Output:
-                         Monthly Payroll Report
+    This void function printReportHeadings print to the output file the title
+    & column headings for the payroll report. Leave one blank line after the
+    centered report title. Display column headers on two lines
+
+    Sample output:
+                        Monthly Payroll Report
     ID#     Hours    Hourly   Overtime    Gross     State    Federal     Net
            Worked     Rate      Hours      Pay       Tax       Tax       Pay
 
     Recives: output file variable
     Constants: none
-    Returns: nothing; prints headings to file 
+    Returns: nothing writes in output file
 */
 
 void printReportHeadings ( ostream & out )
 {
-out << "                     Monthly Payroll Report" << endl << endl
-    << " ID#     Hours    Hourly   Overtime    Gross     State    Federal     Net" << endl
-    << "        Worked     Rate      Hours      Pay       Tax       Tax       Pay" << endl;
+    out << "                     Monthly Payroll Report" << endl << endl
+        << " ID#     Hours    Hourly   Overtime    Gross     State    Federal"
+        <<"     Net" << endl
+        <<"        Worked     Rate      Hours      Pay       Tax       Tax"
+        <<"       Pay" << endl;
 }
 
 /*
+    Function: dataIn
+    Author(s): Mavrick Henderson, Zachary Hickey
+    C.S.1428.002
+    Lab Section: L17, L17
+    Program 6 Function dataIn
+    12/02/19
 
-add shit or she will be mad!!!!!!
+    This read the employee ID#, hours worked and pay rate from an input file
+    (prog6_002inp.txt) storing the values read into parallel arrays. Store the
+    employee ID# in a 1D array of integers. The hours worked and the pay rate
+    should be stored in the first and second columns of a 2D array ofreals. A
 
 
+    Reccives: input file variable, 1D array of employees, 2D array of payroll
+    info
+    Constants: none
+    Returns: nothing reads information from file
 */
 
 void dataIn ( ifstream & fin, int employee[], double payroll[][COLS])
 {
-
-for ( int row = 0; row < ROWS; row++ )
-    fin >> employee[row] >> payroll[row][HRS_WRKD] >> payroll[row][PAYRATE];
+    for ( int row = 0; row < ROWS; row++ )
+        fin >> employee[row] >> payroll[row][HRS_WRKD] >> payroll[row][PAYRATE];
 }
 
 /*
-add shit again
+    Function: overTime
+    Author(s): Mavrick Henderson, Zachary Hickey
+    C.S.1428.002
+    Lab Section: L17, L17
+    Program 6 Function overTime
+    12/02/19
 
+    This void function calculates the number of overtime hours worked by the
+    employee based on a 40-hour work week and stores the number of hours of over
+    time in a 2D array (column OVERTIME)
+
+    recives: 2D array payroll
+    Constants: globally declared integers:
+                 ROWS - parallel arrays row dimension
+              column designations in 2D array
+                 HRS_WRKD
+                 OVRTIME
+              globally declared reals:
+                 CUT_OFF
+    returns: nothing
 */
 
 void overTime ( double payroll[][COLS] )
 {
-for ( int row = 0; row < ROWS; row++ )
-  {
-    if ( payroll[row][HRS_WRKD] > CUT_OFF )
-      payroll[row][OVRTIME] = payroll[row][HRS_WRKD] - CUT_OFF;
-    else
-      payroll[row][OVRTIME] = 0;
-  }
+    for ( int row = 0; row < ROWS; row++ )
+    {
+        if ( payroll[row][HRS_WRKD] > CUT_OFF )
+        payroll[row][OVRTIME] = payroll[row][HRS_WRKD] - CUT_OFF;
+        else
+        payroll[row][OVRTIME] = 0;
+    }
 
 }
 
 /*
-add more shit
+    Function: grossPay
+    Author(s): Mavrick Henderson, Zachary Hickey
+    C.S.1428.002
+    Lab Section: L17, L17
+    Program 6 Function grossPay
+    12/02/19
 
+    This void function calculates the employee's gross pay for the week. If the
+    employee worked 40.0 hours or less, gross pay is the hourly pay rate
+    multiplied by the number of hours worked; otherwise, the employee worked
+    more than 40 hours, and they are paid the regular hourly rate for the first
+    40.0 hours plus time and a half for any hours over 40.
+
+    recives: 2D array payroll
+    Constants: globally declared integers:
+                 ROWS - parallel arrays row dimension
+               column designations in 2D array
+                 GROSS
+               globally declared reals:
+                 CUT_OFF
+               globally declared integers:
+                 HRS_WRKD
+                 PAYRATE
+                 OVRTIME
+    returns: nothing
 */
 
 void grossPay ( double payroll[][COLS] )
 {
-for ( int row = 0; row < ROWS; row++ )
-  if ( payroll[row][OVRTIME] > 0)
-  {
-    payroll[row][GROSS] = payroll[row][OVRTIME] * payroll[row][PAYRATE] * 1.5;
-    payroll[row][GROSS]+= CUT_OFF * payroll[row][PAYRATE];
-  }
-  else
-    payroll[row][GROSS] = payroll[row][HRS_WRKD] * payroll[row][PAYRATE];
+    for ( int row = 0; row < ROWS; row++ )
+        if ( payroll[row][OVRTIME] > 0)
+        {
+            payroll[row][GROSS] =
+            payroll[row][OVRTIME] * payroll[row][PAYRATE] * 1.5;
+
+            payroll[row][GROSS]+= CUT_OFF * payroll[row][PAYRATE];
+        }
+        else
+            payroll[row][GROSS] =
+            payroll[row][HRS_WRKD] * payroll[row][PAYRATE];
 }
 
 /*
-put shit here
+    Function: stateTax
+    Author(s): Mavrick Henderson, Zachary Hickey
+    C.S.1428.002
+    Lab Section: L17, L17
+    Program 6 Function stateTax
+    12/02/19
+
+    This fuction calculates state taxes owed by the employee, calculated at a
+    straight 6% of the employee's weekly gross pay
+
+    recives: 2D array payroll
+    Constants: globally declared integers:
+                 ROWS - parallel arrays row dimension
+               column designations in 2D array
+                 ST_TAX
+               globally declared reals:
+                 STATE_TX_RATE
+               globally declared integers:
+                 GROSS
+    returns: nothing
 */
 
 void stateTax ( double payroll[][COLS] )
 {
-for ( int row = 0; row < ROWS; row++ )
-  payroll[row][ST_TAX] = payroll[row][GROSS] * STATE_TX_RATE;
+    for ( int row = 0; row < ROWS; row++ )
+        payroll[row][ST_TAX] = payroll[row][GROSS] * STATE_TX_RATE;
 }
 
 /*
-add stuff
+    Function: federalTax
+    Author(s): Mavrick Henderson, Zachary Hickey
+    C.S.1428.002
+    Lab Section: L17, L17
+    Program 6 Function federalTax
+    12/02/19
 
+    The void function federalTax calculates federal taxes owed by the employee.
 
+    Note: The sample below assumes a tax cut-off of 400.00 and a tax rate
+        for 20% for low wage earners and a tax rate of 31% for high wage
+        earners. Actual values may differ.
 
+    If weekly gross pay is $400.00 or less,
+        tax rate is 20%.
+    otherwise // employee's weekly gross pay is > $400.00
+        tax rate is calculated at 20% for the first $400.00
+        and 31% for any amount over $400.00.
+
+    Receives: 2D array of reals (payroll information) / COLS
+    Constants: globally declared integers:
+                ROWS - parallel arrays row dimension
+                COLS - 2D array column dimension
+             column designations in 2D array
+                GROSS, FED_TAX
+             globally declared reals:
+                TAX_CUT_OFF - income level at which taxes are increased
+                LOW_TAX_RATE
+                HI_TAX_RATE
+    Returns: fills the federal tax column with calculated data
 */
+
 void federalTax ( double payroll[][COLS] )
 {
-for ( int row = 0; row < ROWS; row++ )
-  if ( payroll[row][GROSS] <= TAX_CUT_OFF )
-    payroll[row][FED_TAX] = payroll[row][GROSS] * LOW_TAX_RATE;
-  else
-  {
-    payroll[row][FED_TAX] = TAX_CUT_OFF * LOW_TAX_RATE;
-    payroll[row][FED_TAX] += ( payroll[row][GROSS] - TAX_CUT_OFF ) * HI_TAX_RATE;
-  }
+    for ( int row = 0; row < ROWS; row++ )
+        if ( payroll[row][GROSS] <= TAX_CUT_OFF )
+            payroll[row][FED_TAX] = payroll[row][GROSS] * LOW_TAX_RATE;
+        else
+        {
+            payroll[row][FED_TAX] = TAX_CUT_OFF * LOW_TAX_RATE;
+            payroll[row][FED_TAX] +=
+            ( payroll[row][GROSS] - TAX_CUT_OFF ) * HI_TAX_RATE;
+        }
 }
 
 /*
-stuff
+    Function: netPay
+    Author(s): Mavrick Henderson, Zachary Hickey
+    C.S.1428.002
+    Lab Section: L17, L17
+    Program 6 Function netPay
+    12/02/19
+
+    This function calculates the employee's net pay for the week.
+    (gross pay minus calculated taxes both state & federal)
+
+    recives: 2D array payroll
+    Constants: globally declared integers:
+                 ROWS - parallel arrays row dimension
+               column designations in 2D array
+                 NETPAY
+               globally declared reals:
+                 STATE_TX_RATE
+               globally declared integers:
+                 GROSS
+                 ST_TAX
+                 FED_TAX
+    returns: nothing
 */
+
 void netPay ( double payroll[][COLS] )
 {
-for ( int row = 0; row < ROWS; row++ )
-  payroll[row][NETPAY] = payroll[row][GROSS] - payroll[row][ST_TAX] - payroll[row][FED_TAX];
+    for ( int row = 0; row < ROWS; row++ )
+        payroll[row][NETPAY] =
+        payroll[row][GROSS] - payroll[row][ST_TAX] - payroll[row][FED_TAX];
 }
-/*
-add stfff
 
+/*
+    Function: printReportData
+    Author(s): Mavrick Henderson, Zachary Hickey
+    C.S.1428.002
+    Lab Section: L17, L17
+    Program 6 Function printReportData
+    12/02/19
+
+    The void function printReportData prints to an output file the payroll
+    information for each employee in tabular form under the appropriate column
+    headers. The employee records are single spaced. Monetary values are
+    displayed with two digits of precision.
+    Note: The report title and column headers are printed by a previously
+    called function.
+    Monthly Payroll Report
+    ID# Hours Hourly Overtime Gross State Federal Net
+    Worked Rate Hours Pay Tax Tax Pay
+    1000 51.00 6.55 11.00 370.07 22.20 74.02 273.86
+    1001 40.50 6.50 0.50 264.88 15.89 52.98 196.01
+    ...
+
+    Receives: output file variable, protected 1D array of integer ID#s,
+    protected 2D array of reals (payroll information) / COLS;
+    (in this order)
+    Constants: globally declared integers:
+    ROWS - parallel arrays row dimension
+    COLS - 2D array column dimension
+    Returns: nothing; prints out report data under appropriate report headings
+    previously printed
 */
-void printReportData ( ostream& out, const int employee[], const double payroll[][COLS])
+void printReportData ( ostream& out, const int employee[],
+                      const double payroll[][COLS] )
 {
   for ( int row = 0; row < ROWS; row++ )
   {
     out << employee[row];
     for ( int info = 0; info < COLS; info++ )
-      out << fixed << setprecision(2) << setfill(' ') << setw(10) << payroll[row][info];
+      out << fixed << setprecision(2) << setfill(' ') << setw(10)
+      << payroll[row][info];
     out << endl;
   }
+}
+
+/*
+    Function: writeFileLocation
+    Author(s): Mavrick Henderson, Zachary Hickey
+    C.S.1428.002
+    Lab Section: L17, L17
+    Program 6 Function writeFileLocation
+    12/02/19
+
+    This Function prints an appropriate message to the console screen
+    indicating to the user the name of the output file to which the results
+    have been written.
+
+    sample output:
+        Program has been written to prog6_002out.txt.
+
+    recives: 1D array output_file_name
+    Constants: none
+    returns: nothing
+*/
+
+void writeFileLocation( const char output_file_name[] )
+{
+    cout <<"Program has been written to " << output_file_name << "." << endl;
 }
